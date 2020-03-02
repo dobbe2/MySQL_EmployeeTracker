@@ -1,0 +1,24 @@
+create databases Employee, Role, and Department
+
+Inquirer add employee? 
+    get first name, last name, role (integer), manager id (integer), 
+        role should be a list of jobs i.e. manager, engineer, accountant, lawyer.
+        each role should have a unique id
+        manager id should have a unique id as well
+
+    once role is chosen, switch case to role specific questions
+        Title (list)
+        Salary (number/integer)
+        department (unique department id)
+
+    when department is chosen, switch case to department specific questions
+        department name
+
+create new table with answers and console.table them.
+
+Have option to add more departments, roles, and employees, (run again)
+
+have option to view departments, roles, and employees (view database)
+
+have option to update role of employee (change value of data)
+
