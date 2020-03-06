@@ -19,16 +19,31 @@ connection.connect(function(err) {
     }
    
     console.log('connected as id ' + connection.threadId);
+    //show current data//
+    // connection.query("SELECT * FROM employee", function(res, err){
+    //     if (err) throw err;
+    //     console.table(res);
+    // })
+    // connection.query("SELECT * FROM role", function(res, err){
+    //     if (err) throw err;
+    //     console.table(res);
+    // })
+    // connection.query("SELECT * FROM department", function(res, err){
+    //     if (err) throw err;
+    //     console.table(res);
+    // })
     start();
   });
 
+  //start application
 function start(){
 inquirer
 .prompt({
     name: "action",
-    type: "rawlist",
+    type: "list",
     message: "What would you like to do?",
     choices: [
+        "View All",
         "Add Employee", 
         "Add Role",
         "Add Department",
@@ -41,6 +56,10 @@ inquirer
 })
 .then(function(answer) {
     switch (answer.action){
+        case "View All":
+            viewAll();
+            break;
+
         case "Add Employee":
             addEmployee();
             break;
@@ -74,6 +93,22 @@ inquirer
         }
     });
 };
+function viewAll(){
+    connection.query("SELECT * FROM employee INNER JOIN role")
+    // connection.query("SELECT * FROM employee", function(res, err){
+    //         if (err) throw err;
+    //         console.table(res);
+    //     })
+    // connection.query("SELECT * FROM role", function(res, err){
+    //     if (err) throw err;
+    //     console.table(JSON.stringify(res));
+    // })
+    // connection.query("SELECT * FROM department", function(res, err){
+    //     if (err) throw err;
+    //     console.table(res);
+    // })
+    start();
+}
 
 function addEmployee(){
     inquirer
@@ -90,15 +125,32 @@ function addEmployee(){
     },
     {
         name: "role",
-        type: "input",
-        message: "What is the employees role? Insert Number for now: ",
-        validate: function(value) {
-            if (isNaN(value) === false) {
-                return true;
-            } console.log("\n must be a number for now, sorry")
-            return false
+        type: "list",
+        message: "What is the employees role?",
+        // validate: function(value) {
+        //     if (isNaN(value) === false) {
+        //         return true;
+        //     } console.log("\n must be a number for now, sorry")
+        //     return false
            
-        }
+        // }
+        choices: [
+            "Server",
+            "Busser",
+            "Host",
+            "Cook",
+            "Dishwasher",
+            "Payroll",
+            "Publisher",
+            "Floor Manager",
+            "Kitchen Manager",
+            "General Manager"
+        ]
+    },
+    {
+        name:"manager",
+        type: "input",
+        message: "Who is the employees manager?"
     }
     ])
     .then(function(answer) {
@@ -107,15 +159,16 @@ function addEmployee(){
             {
                 first_name: answer.firstName,
                 last_name: answer.lastName,
-                role_id: answer.role
+                role_id: answer.role,
+                manager_id: answer.manager
             },
             function (err) {
                 if (err) throw err;
                 let values = [
-                    [answer.firstName,answer.lastName, answer.role]
+                    [answer.firstName,answer.lastName, answer.role, answer.manager]
                 ]
                 console.log("Added employee sucessfully!")
-                console.table(["First Name", "Last Name", "Role ID Number"], values)
+                console.table(["First Name", "Last Name", "Role ID Number", "Manager ID"], values)
                 start();
             }
         )
@@ -198,5 +251,29 @@ function addDepartment(){
                 start();
             }
         )
+    })
+}
+
+function viewEmployees(){
+    connection.query("SELECT * FROM employee", function(err, res){
+        if (err) throw err;
+        console.table(res);
+        start();
+    })
+}
+
+function viewRoles(){
+    connection.query("SELECT * FROM role", function(err, res){
+        if (err) throw err;
+        console.table(res);
+        start();
+    })
+}
+
+function viewDepartments(){
+    connection.query("SELECT * FROM department", function(err, res){
+        if (err) throw err;
+        console.table(res);
+        start();
     })
 }
