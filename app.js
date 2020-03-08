@@ -93,20 +93,15 @@ function start() {
             }
         });
 };
+
 function viewAll() {
-    connection.query("SELECT * FROM employee INNER JOIN role")
-    // connection.query("SELECT * FROM employee", function(res, err){
-    //         if (err) throw err;
-    //         console.table(res);
-    //     })
-    // connection.query("SELECT * FROM role", function(res, err){
-    //     if (err) throw err;
-    //     console.table(JSON.stringify(res));
-    // })
-    // connection.query("SELECT * FROM department", function(res, err){
-    //     if (err) throw err;
-    //     console.table(res);
-    // })
+    connection.query("SELECT employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;", function(err, res){
+        if (err){
+            throw err
+        }
+        console.table(res);
+    })
+    
     start();
 }
 
@@ -137,13 +132,6 @@ function addEmployee() {
                         name: "role_id",
                         type: "list",
                         message: "What is the employees role?",
-                        // validate: function(value) {
-                        //     if (isNaN(value) === false) {
-                        //         return true;
-                        //     } console.log("\n must be a number for now, sorry")
-                        //     return false
-
-                        // }
                         choices: roleChoices
                     },
                     {
@@ -176,10 +164,10 @@ function addEmployee() {
 function addRole() {
 
     connection.query("select * from department", function (err, db) {
-        let depChoices = db.map(e => {
+        let depChoices = db.map(event => {
             return {
-                name: e.name,
-                value: e.id
+                name: event.name,
+                value: event.id
             }
         })
         console.log(depChoices)
@@ -205,7 +193,7 @@ function addRole() {
                 {
                     name: "department_id",
                     type: "list",
-                    message: "What department is this? Number for now",
+                    message: "What department does this role fall into?",
                     choices: depChoices
 
 
@@ -259,7 +247,7 @@ function addDepartment() {
             )
         })
 }
-
+//This should be for VIEWALL, change VIEW EMPLOYEE to only first and last name 
 function viewEmployees() {
     connection.query("SELECT employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
     // connection.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, manager.first_name, manager.last_name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on department.id = role.department_id LEFT JOIN employee manager on manager.id = employee.manager_id", 
@@ -275,13 +263,13 @@ function viewRoles() {
 
         if (err) throw err;
         console.table(res);
-        console.log(res)
+        // console.log(res)
         start();
     })
 }
 
 function viewDepartments() {
-    connection.query("SELECT * FROM department", function (err, res) {
+    connection.query("SELECT department.name FROM department", function (err, res) {
         if (err) throw err;
         console.table(res);
         start();
