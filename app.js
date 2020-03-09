@@ -1,9 +1,9 @@
-var inquirer = require("inquirer");
-const cTable = require('console.table');
-var mysql = require('mysql');
+const inquirer = require("inquirer");
+const consoleTable = require('console.table');
+const mysql = require('mysql');
 
 //creating connection to mysql database
-var connection = mysql.createConnection({
+const connection = mysql.createConnection({
     host: 'localhost',
     port: '3306',
     user: 'root',
@@ -19,19 +19,7 @@ connection.connect(function (err) {
     }
 
     console.log('connected as id ' + connection.threadId);
-    //show current data//
-    // connection.query("SELECT * FROM employee", function(res, err){
-    //     if (err) throw err;
-    //     console.table(res);
-    // })
-    // connection.query("SELECT * FROM role", function(res, err){
-    //     if (err) throw err;
-    //     console.table(res);
-    // })
-    // connection.query("SELECT * FROM department", function(res, err){
-    //     if (err) throw err;
-    //     console.table(res);
-    // })
+    console.log("\n\nWelcome to the Employee tracker!\n\n")
     start();
 });
 
@@ -89,20 +77,20 @@ function start() {
                     break;
 
                 case "Exit":
+                    console.log("\n\nThank you for using the Employee Tracker.\n\nGoodbye!\n\n")
                     connection.end();
             }
         });
 };
 
 function viewAll() {
-    connection.query("SELECT employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;", function(err, res){
-        if (err){
-            throw err
-        }
+    connection.query("SELECT employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;",
+    function(err, res){
+        if (err) throw err;
+        console.log("\n")
         console.table(res);
+        start();
     })
-    
-    start();
 }
 
 function addEmployee() {
@@ -114,8 +102,6 @@ function addEmployee() {
             let managerChoices = db.map(item => {
                 return { name: item.first_name + " " + item.last_name, value: item.id }
             })
-
-
             inquirer
                 .prompt([
                     {
@@ -142,17 +128,16 @@ function addEmployee() {
                     }
                 ])
                 .then(function (answer) {
-                    console.log(answer)
                     connection.query(
                         "INSERT INTO employee SET ?", answer,
 
-                        function (err,db) {
+                        function (err) {
                             if (err) throw err;
-                            // let values = [
-                            //     [answer.firstName, answer.lastName, answer.role, answer.manager]
-                            // ]
-                            console.log("Added employee sucessfully!")
-                            console.table(db)
+                            let values = [
+                                [answer.first_name, answer.last_name]
+                            ]
+                            console.log("\nAdded Employee sucessfully!\n")
+                            console.table(["First Name", "Last Name"], values)
                             start();
                         }
                     )
@@ -162,7 +147,6 @@ function addEmployee() {
 }
 
 function addRole() {
-
     connection.query("select * from department", function (err, db) {
         let depChoices = db.map(event => {
             return {
@@ -170,8 +154,6 @@ function addRole() {
                 value: event.id
             }
         })
-        console.log(depChoices)
-
         inquirer
             .prompt([
                 {
@@ -200,21 +182,15 @@ function addRole() {
                 }
             ])
             .then(function (answer) {
-                console.log(answer)
                 connection.query(
                     "INSERT INTO role SET ?", answer,
-                    // {
-                    //     title: answer.roleName,
-                    //     salary: answer.salary,
-                    //     department_id: answer.department_id
-                    // },
                     function (err) {
                         if (err) throw err;
                         let values = [
-                            [answer.roleName, answer.salary, answer.department_id]
+                            [answer.title]
                         ]
-                        console.log("Added role sucessfully!")
-                        console.table(["Role Name", "Role Salary", "Role ID Number"], values)
+                        console.log("\nAdded role sucessfully!\n")
+                        console.table(["Role Name",], values)
                         start();
                     }
                 )
@@ -239,31 +215,31 @@ function addDepartment() {
                 },
                 function (err) {
                     if (err) throw err;
-                    let values = answer.departmentName
-                    console.log("Department role sucessfully!")
+                    let values = [[answer.departmentName]]
+                    console.log("\n Department role sucessfully! \n")
                     console.table(["Department Name"], values)
                     start();
                 }
             )
         })
 }
-//This should be for VIEWALL, change VIEW EMPLOYEE to only first and last name 
+
 function viewEmployees() {
-    connection.query("SELECT employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT(manager.first_name, ' ', manager.last_name) AS manager FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on role.department_id = department.id LEFT JOIN employee manager on manager.id = employee.manager_id;"
-    // connection.query("SELECT employee.first_name, employee.last_name, role.title, role.salary, department.name AS department, manager.first_name, manager.last_name FROM employee LEFT JOIN role on employee.role_id = role.id LEFT JOIN department on department.id = role.department_id LEFT JOIN employee manager on manager.id = employee.manager_id", 
+    connection.query("SELECT CONCAT(employee.first_name, ' ', employee.last_name) AS Employees FROM employee;"
     ,function (err, res) {
         if (err) throw err;
+        console.log("\n");
         console.table(res);
         start();
     })
 }
 
 function viewRoles() {
-    connection.query("SELECT role.title, role.salary, department.name AS department FROM role LEFT JOIN department on role.department_id = department.id", function (err, res) {
-
+    connection.query("SELECT role.title, role.salary, department.name AS department FROM role LEFT JOIN department on role.department_id = department.id", 
+    function (err, res) {
         if (err) throw err;
+        console.log("\n");
         console.table(res);
-        // console.log(res)
         start();
     })
 }
@@ -271,7 +247,50 @@ function viewRoles() {
 function viewDepartments() {
     connection.query("SELECT department.name FROM department", function (err, res) {
         if (err) throw err;
+        console.log("\n");
         console.table(res);
         start();
+    })
+}
+
+function updateEmployeeRoles() {
+    connection.query('select * from employee', function(err, res){
+        let employeeToUpdate = res.map(item => {
+            return {name: item.first_name + " " + item.last_name, value: item.id}
+        })
+    
+    connection.query('select * from role', function(err, res){
+        let updatedRole = res.map(item=> {
+            return {name: item.title, value: item.id}
+        })
+    
+    inquirer.prompt([
+        {
+            name: 'employee',
+            type: 'list',
+            message: "Who's role would you like to update",
+            choices: employeeToUpdate
+        },
+        {
+            name: 'role',
+            type: 'list',
+            message: 'What new role would you like to assign to them',
+            choices: updatedRole
+        }
+    ])
+    .then(function (answer){
+            console.log("\nThis is currently under construction, try again later!\n");
+            start();
+            // connection.query('UPDATE employee SET role_id = ? WHERE id = ?',
+            // [
+            //     {role: answer.role}, {employee: answer.employee}
+            // ],
+            // function(err, res) {
+            //     if (err) throw err;
+            // }
+            // )
+            
+            })
+        })
     })
 }
