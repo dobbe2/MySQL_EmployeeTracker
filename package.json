@@ -1,0 +1,25 @@
+{
+  "name": "mysql_employeetracker",
+  "version": "1.0.0",
+  "description": "Developers are often tasked with creating interfaces that make it easy for non-developers to view and interact with information stored in databases. Often these interfaces are known as Content Management Systems. In this homework assignment, my challenge was to architect and build a solution for managing a company's employees using node, inquirer, and MySQL.",
+  "main": "app.js",
+  "dependencies": {
+    "console.table": "^0.10.0",
+    "inquirer": "^7.0.4",
+    "mysql": "^2.18.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dobbe2/MySQL_EmployeeTracker.git"
+  },
+  "author": "dobbe2",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dobbe2/MySQL_EmployeeTracker/issues"
+  },
+  "homepage": "https://github.com/dobbe2/MySQL_EmployeeTracker#readme"
+}
